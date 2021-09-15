@@ -1,4 +1,11 @@
-Using the face_recognition library in python to recognise faces in real time using camera input.The directory hierarchy should be as follows 
+Using the face_recognition library in python to recognise faces in real time using camera input.The directory hierarchy should be as 
+follows 
+
+
+
+
+
+
 
 
 
