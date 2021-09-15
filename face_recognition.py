@@ -2,21 +2,22 @@ import os
 import cv2 
 import face_recognition
 import numpy as np 
-import sys
+
 
 known_face_encodings = []
 name_list = []
-image_folder = os.listdir(r"C:\...\image_folder")
+image_folder = os.listdir(r"C:\Users\sagar\Desktop\Tann_mann_facedetection\image_folder")
 for sub_image_folder in image_folder:
-    for image in os.listdir(fr"C:\...\image_folder\{sub_image_folder}"):
-        img =cv2.imread(fr"C:\....\image_folder\{sub_image_folder}\{image}")
+    for image in os.listdir(fr"C:\Users\sagar\Desktop\Tann_mann_facedetection\image_folder\{sub_image_folder}"):
+        img =cv2.imread(fr"C:\Users\sagar\Desktop\Tann_mann_facedetection\image_folder\{sub_image_folder}\{image}")
         known_face_encodings.append(face_recognition.face_encodings(img)[0])
-        associated_name = "".join([sub_image_folder[i] for i in range(sub_image_folder.index("_"))])
+        associated_name = "".join([sub_image_folder[i] for i in range(sub_image_folder.index("_"))]) 
         name_list.append(associated_name)       
 
 face_locations = []
 face_encodings = []
 face_names = []
+process_this_frame = True
 video_capture = cv2.VideoCapture(0)
 while True:
     # Grab a single frame of video
@@ -29,25 +30,26 @@ while True:
     rgb_small_frame = small_frame[:, :, ::-1]
 
     # Only process every other frame of video to save time
-  
+    if process_this_frame:
         # Find all the faces and face encodings in the current frame of video
-    face_locations = face_recognition.face_locations(rgb_small_frame)
-    face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
+        face_locations = face_recognition.face_locations(rgb_small_frame)
+        face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
 
-    face_names = []
-    for face_encoding in face_encodings:
-        # See if the face is a match for the known face(s)
-        
-        matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
-        name = "Unknown"
+        face_names = []
+        for face_encoding in face_encodings:
+            # See if the face is a match for the known face(s)
+         
+            matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
+            name = "Unknown"
 
-        # # If a match was found in known_face_encodings, just use the first one.
-        if True in matches:
-            first_match_index = matches.index(True)
-            print(name_list[first_match_index])
-            sys.exit()
+            face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
+            best_match_index = np.argmin(face_distances)
+            if matches[best_match_index]:
+                name = name_list[best_match_index]
 
-            
+            face_names.append(name)
+
+    process_this_frame = not process_this_frame
 
 
     # Display the results
