@@ -9,14 +9,14 @@ import pickle
 Mongo_Client =motor.motor_asyncio.AsyncIOMotorClient(r"mongodb+srv://<username>:<password>@<dbname>.si3ce.mongodb.net/Bot_data?retryWrites=true&w=majority",ssl_cert_reqs=ssl.CERT_NONE, serverSelectionTimeoutMS=5000)
 db = Mongo_Client.get_database('<dbname>')
 
-async def img_ready(imagepath):
+async def img_ready(imagepath)->np.ndarray:
     frame = cv2.imread(imagepath)
     small_frame = cv2.resize(frame, (0, 0), fx=1, fy=1)
     return small_frame[:, :, ::-1]
 
 
 
-async def match_encoding(imagepath)->(Bool,None):
+async def match_encoding(imagepath)->tuple[bool,None]:
     """
     Function which actually matches the face of the person in the image with the face encodings in the database
     Parameters : imagepath (this will change according to how js file communicates with py file),knownface encodings from the db
@@ -54,7 +54,7 @@ class Mongo_functions:
          """
         await Mongo_functions.current_db.insert_one({"encoding":Binary(pickle.dumps(encoding, protocol=2), subtype=128 )})
 
-    async def get_all_encodings()->list[np.array]:
+    async def get_all_encodings()->list[np.ndaaray]:
         """
         Function which returns all the encodings from the database in the format of list of np arrays
 
