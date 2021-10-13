@@ -5,8 +5,8 @@ import pymongo
 import ssl 
 from bson.binary import Binary
 import pickle
-Mongo_Client = pymongo.MongoClient(r"mongodb+srv://ingenious:snowbell@botdata.si3ce.mongodb.net/Bot_data?retryWrites=true&w=majority",ssl_cert_reqs=ssl.CERT_NONE, serverSelectionTimeoutMS=5000)
-db = Mongo_Client.get_database('Bot_data')
+Mongo_Client = pymongo.MongoClient(r"mongodb+srv://<username>:<password>@botdata.si3ce.mongodb.net/<default_db_name>?retryWrites=true&w=majority",ssl_cert_reqs=ssl.CERT_NONE, serverSelectionTimeoutMS=5000)
+db = Mongo_Client.get_database('<db_to connect>')
 
 def img_ready(imagepath):
     frame = cv2.imread(imagepath)
