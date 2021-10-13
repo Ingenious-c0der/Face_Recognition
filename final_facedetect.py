@@ -16,7 +16,7 @@ async def img_ready(imagepath):
 
 
 
-async def match_encoding(imagepath):
+async def match_encoding(imagepath)->(Bool,None):
     """
     Function which actually matches the face of the person in the image with the face encodings in the database
     Parameters : imagepath (this will change according to how js file communicates with py file),knownface encodings from the db
