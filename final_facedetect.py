@@ -1,22 +1,25 @@
 import cv2
 import face_recognition
 import numpy as np
-import motor
-from motor.motor_asyncio import AsyncIOMotorClient,AsyncIOMotorDatabase
+from motor.motor_asyncio import AsyncIOMotorClient as MotorClient
 import ssl 
 from bson.binary import Binary
 import pickle
-Mongo_Client =motor.motor_asyncio.AsyncIOMotorClient(r"mongodb+srv://<username>:<password>@<dbname>.si3ce.mongodb.net/Bot_data?retryWrites=true&w=majority",ssl_cert_reqs=ssl.CERT_NONE, serverSelectionTimeoutMS=5000)
+import asyncio
+import sys
+Mongo_Client =MotorClient(r"mongodb+srv://<username>:<password>@<dbname>.si3ce.mongodb.net/Bot_data?retryWrites=true&w=majority",ssl_cert_reqs=ssl.CERT_NONE, serverSelectionTimeoutMS=5000)
+Mongo_Client.get_io_loop = asyncio.get_running_loop
 db = Mongo_Client.get_database('<dbname>')
 
 async def img_ready(imagepath)->np.ndarray:
     frame = cv2.imread(imagepath)
     small_frame = cv2.resize(frame, (0, 0), fx=1, fy=1)
+  
     return small_frame[:, :, ::-1]
 
 
 
-async def match_encoding(imagepath)->tuple[bool,None]:
+async def match_encoding(imagepath)->int:
     """
     Function which actually matches the face of the person in the image with the face encodings in the database
     Parameters : imagepath (this will change according to how js file communicates with py file),knownface encodings from the db
@@ -33,7 +36,15 @@ async def match_encoding(imagepath)->tuple[bool,None]:
     
     
     comparison_list = face_recognition.api.compare_faces(known_face_encodings, face_encoding_to_check, tolerance=0.6)
-    return True if comparison_list.count(True)>=1 else False,await Mongo_functions.push_encoding_to_db(face_encoding_to_check)
+    is_match =True if comparison_list.count(True)>=1 else False
+    if is_match:
+        return 1
+    else: 
+        await Mongo_functions.push_encoding_to_db(face_encoding_to_check)
+        return -1
+        
+
+    
 
 class Mongo_functions:
     current_db = db.Encodings
@@ -54,7 +65,7 @@ class Mongo_functions:
          """
         await Mongo_functions.current_db.insert_one({"encoding":Binary(pickle.dumps(encoding, protocol=2), subtype=128 )})
 
-    async def get_all_encodings()->list[np.ndaaray]:
+    async def get_all_encodings()->list[np.ndarray]:
         """
         Function which returns all the encodings from the database in the format of list of np arrays
 
@@ -67,5 +78,8 @@ class Mongo_functions:
             decoded_encodings.append(pickle.loads(encoding_dict['encoding']))
         return decoded_encodings
 
-
+if __name__ == "__main__":
+    
+    result = asyncio.run(match_encoding(sys.argv[1]))
+    print(result)
 
