@@ -13,7 +13,7 @@ import os
 dotenv.load_dotenv(r'env_store\.env')
 Mongo_Client =MotorClient(fr"{os.environ.get('CONNECTION_STRING')}",ssl_cert_reqs=ssl.CERT_NONE, serverSelectionTimeoutMS=5000)
 Mongo_Client.get_io_loop = asyncio.get_running_loop
-db = Mongo_Client.get_database('Bot_data')
+db = Mongo_Client.get_database('dbname')
 
 async def img_ready(imagepath)->np.ndarray:
     frame = cv2.imread(imagepath)
