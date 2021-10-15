@@ -7,9 +7,13 @@ from bson.binary import Binary
 import pickle
 import asyncio
 import sys
-Mongo_Client =MotorClient(r"mongodb+srv://<username>:<password>@<dbname>.si3ce.mongodb.net/Bot_data?retryWrites=true&w=majority",ssl_cert_reqs=ssl.CERT_NONE, serverSelectionTimeoutMS=5000)
+import dotenv
+import os
+
+dotenv.load_dotenv(r'env_store\.env')
+Mongo_Client =MotorClient(fr"{os.environ.get('CONNECTION_STRING')}",ssl_cert_reqs=ssl.CERT_NONE, serverSelectionTimeoutMS=5000)
 Mongo_Client.get_io_loop = asyncio.get_running_loop
-db = Mongo_Client.get_database('<dbname>')
+db = Mongo_Client.get_database('Bot_data')
 
 async def img_ready(imagepath)->np.ndarray:
     frame = cv2.imread(imagepath)
@@ -19,7 +23,7 @@ async def img_ready(imagepath)->np.ndarray:
 
 
 
-async def match_encoding(imagepath)->int:
+async def match_encoding(imagepath)->tuple[bool,None]:
     """
     Function which actually matches the face of the person in the image with the face encodings in the database
     Parameters : imagepath (this will change according to how js file communicates with py file),knownface encodings from the db
@@ -82,4 +86,6 @@ if __name__ == "__main__":
     
     result = asyncio.run(match_encoding(sys.argv[1]))
     print(result)
+    
+
 
