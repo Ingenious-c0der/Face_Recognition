@@ -6,21 +6,22 @@ import ssl
 from bson.binary import Binary
 import pickle
 import asyncio
-import sys
 import dotenv
 import os
+import urllib
+import sys
 
 dotenv.load_dotenv(r'env_store\.env')
 Mongo_Client =MotorClient(fr"{os.environ.get('CONNECTION_STRING')}",ssl_cert_reqs=ssl.CERT_NONE, serverSelectionTimeoutMS=5000)
 Mongo_Client.get_io_loop = asyncio.get_running_loop
-db = Mongo_Client.get_database('dbname')
+db = Mongo_Client.get_database('Bot_data')
 
-async def img_ready(imagepath)->np.ndarray:
-    frame = cv2.imread(imagepath)
-    small_frame = cv2.resize(frame, (0, 0), fx=1, fy=1)
-  
-    return small_frame[:, :, ::-1]
-
+async def img_ready(imageurl)->np.ndarray:
+    
+    resp = urllib.request.urlopen(imageurl)
+    image = np.asarray(bytearray(resp.read()), dtype="uint8")
+    image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+    return image
 
 
 async def match_encoding(imagepath)->tuple[bool,None]:
@@ -85,7 +86,5 @@ class Mongo_functions:
 if __name__ == "__main__":
     
     result = asyncio.run(match_encoding(sys.argv[1]))
-    print(result)
-    
-
+    #print(result)
 
